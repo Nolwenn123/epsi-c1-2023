@@ -46,7 +46,7 @@
         li {
             background-color: rgba(54, 52, 52, 0.6);
             border-radius: 18px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             padding: 10px;
             flex-basis: calc(33.333% - 20px);
             box-sizing: border-box;
@@ -127,6 +127,9 @@
             cursor: pointer;
             border-radius: 5px;
         }
+		.tomorrow-menu {
+			background-color: #ffcc00; /* Couleur différente pour le menu du lendemain */
+		}
     </style>
 </head>
 <body>
@@ -146,13 +149,14 @@
         </div>
 
 		<ul>
-			<li v-for="menu in filteredMenus">
+			<li v-for="menu in filteredMenus" :class="{ 'tomorrow-menu': menu.isTomorrow }">
 				<span class="date">{{ menu.date }}</span><br />
 				<strong>{{ menu.type_menu }}</strong><br />
 				<br>
 				{{ menu.repas }}
 			</li>
 		</ul>
+		
 		
     </div>
 
@@ -167,6 +171,7 @@
                     menus: [],
                     selectedType: null,
 					searchQuery: '',
+					currentDate: new Date().toISOString().split('T')[0],
                 };
             },
             computed: {
