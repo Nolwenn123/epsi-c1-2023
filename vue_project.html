@@ -4,75 +4,156 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Menus des Cantines Scolaires de Nantes</title>
-    <style>
-		body {
-			font-family: "Arial", sans-serif;
-			background-color: #f8f8f8;
-			margin: 0;
-			padding: 0;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			height: 100vh;
-		}
-	
-		#demo {
-			background-color: #fff;
-			border-radius: 8px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			padding: 20px;
-			text-align: center;
-		}
-	
-		h1 {
-			color: #333;
-			margin-bottom: 20px;
-		}
-	
-		ul {
-			list-style-type: none;
-			padding: 0;
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: space-around;
-		}
-	
-		li {
-			background-color: #f0f0f0;
-			border-radius: 5px;
-			margin-bottom: 10px;
-			padding: 10px;
-			flex-basis: calc(33.333% - 20px); /* Ajuster la largeur en fonction du nombre de menus par ligne */
-			box-sizing: border-box;
-		}
-	
-		.date {
-			font-weight: bold;
-			color: #333;
-		}
-	
-		strong {
-			color: #009688;
-		}
-	</style>
-	
-	
+	<style>
+        @import url('https://fonts.googleapis.com/css2?family=Koulen&family=Press+Start+2P&display=swap');
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #0f0f0f; /* Fond foncé */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+			color: #fff;
+        }
+
+        #demo {
+            background-color: transparent; /* Fond transparent */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); /* Ombre légère */
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2vh;
+            font-family: "Press Start 2P";
+            color: #1a492e;
+            margin-bottom: 20px;
+            color: #fff; /* Texte blanc */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+			font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        li {
+            background-color: rgba(54, 52, 52, 0.6);
+            border-radius: 18px;
+            margin-bottom: 10px;
+            padding: 10px;
+            flex-basis: calc(33.333% - 20px);
+            box-sizing: border-box;
+        }
+
+        .date {
+            font-weight: bold;
+            color: #c0c0c0;
+        }
+
+        strong {
+            color: #009688;
+        }
+
+        button {
+            background-color: #009688;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button.active {
+            background-color: #004d40;
+        }
+
+		.animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+
+        .circle {
+            position: absolute;
+            background-color: rgba(36, 178, 57, 0.3);
+            border-radius: 50%;
+            filter: blur(20px);
+            animation: scaleCircle 5s infinite alternate;
+        }
+
+        @keyframes scaleCircle {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.5);
+            }
+        }
+
+		input[type="text"] {
+            padding: 8px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button.search-button {
+            background-color: #009688;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
+	<div class="animated-background">
+        <div class="circle" style="width: 100px; height: 100px; top: 20%; left: 30%;"></div>
+        <div class="circle" style="width: 150px; height: 150px; top: 50%; left: 70%;"></div>
+    </div>
     <div id="demo">
         <h1>Menus des Cantines Scolaires de Nantes</h1>
+		<div>
+			<input type="text" v-model="searchQuery" placeholder="Rechercher des menus">
+		</div>
+        <div>
+            <button @click="filterMenus(null)">Tous</button>
+            <button @click="filterMenus('Menu Standard')">Menu Standard</button>
+            <button @click="filterMenus('Menu Allergique')">Menu Allergique</button>
+        </div>
 
-        <label>
-            <input type="checkbox" v-model="isFrench" /> Langue Française
-        </label>
-
-        <ul>
-            <li v-for="menu in menus">
-                <span class="date">{{ menu.date }}</span><br />
-                <strong>{{ menu.type_menu }}</strong><br />
-                {{ menu.repas }}
-            </li>
-        </ul>
+		<ul>
+			<li v-for="menu in filteredMenus">
+				<span class="date">{{ menu.date }}</span><br />
+				<strong>{{ menu.type_menu }}</strong><br />
+				<br>
+				{{ menu.repas }}
+			</li>
+		</ul>
+		
     </div>
 
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -84,21 +165,40 @@
             data() {
                 return {
                     menus: [],
-                    isFrench: true, // Langue par défaut est le français
+                    selectedType: null,
+					searchQuery: '',
                 };
             },
+            computed: {
+				filteredMenus: function () {
+					let filteredMenus = this.menus;
+			
+					if (this.selectedType && this.selectedType.toLowerCase() !== 'tous') {
+						filteredMenus = filteredMenus.filter(menu => menu.type_menu.toLowerCase() === this.selectedType.toLowerCase());
+					}
+			
+					if (this.searchQuery) {
+						const searchQueryLower = this.searchQuery.toLowerCase();
+						filteredMenus = filteredMenus.filter(menu => 
+							menu.date.toLowerCase().includes(searchQueryLower) ||
+							menu.type_menu.toLowerCase().includes(searchQueryLower) ||
+							menu.repas.toLowerCase().includes(searchQueryLower)
+						);
+					}
+			
+					return filteredMenus;
+				},
+			},
+			
+			
+			
             created: function () {
                 this.fetchMenus();
             },
-            watch: {
-                isFrench: 'fetchMenus', // Réappeler fetchMenus lorsque isFrench change
-            },
             methods: {
                 fetchMenus: function () {
-                    const languageParam = this.isFrench ? 'fr' : 'en';
-
                     axios
-                        .get(apiURL + `&lang=${languageParam}`)
+                        .get(apiURL)
                         .then((response) => {
                             console.log(response.data);
                             this.menus = response.data.results;
@@ -108,6 +208,12 @@
                             console.log(error);
                         });
                 },
+                filterMenus: function (type) {
+                    this.selectedType = type;
+                },
+				searchMenus: function () {
+					this.selectedType = null;
+				},
             },
         }).mount("#demo");
     </script>
